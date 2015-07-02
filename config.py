@@ -10,6 +10,14 @@ OPENID_PROVIDERS = [
     {'name': 'Flickr', 'url': 'http://www.flickr.com/<username>'},
     {'name': 'MyOpenID', 'url': 'https://www.myopenid.com'}]
 
+# mail server settings
+MAIL_SERVER = 'smtp.163.com'
+MAIL_PORT = 25
+MAIL_USERNAME = 'shshilmh@163.com'
+MAIL_PASSWORD = '1385548ss*7789'
+
+# administrator list
+ADMINS = ['ucaiyuan_test2@163.com']
 
 
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
