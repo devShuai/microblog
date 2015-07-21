@@ -19,6 +19,9 @@ MAIL_PASSWORD = '1385548ss*7789'
 # administrator list
 ADMINS = ['ucaiyuan_test2@163.com']
 
+# pagination
+POSTS_PER_PAGE = 3
+
 
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
