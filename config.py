@@ -17,7 +17,7 @@ MAIL_USERNAME = 'shshilmh@163.com'
 MAIL_PASSWORD = '1385548ss*7789'
 
 # administrator list
-ADMINS = ['ucaiyuan_test2@163.com']
+ADMINS = ['shshilmh@163.com','ucaiyuan_test2@163.com']
 
 # pagination
 POSTS_PER_PAGE = 3
