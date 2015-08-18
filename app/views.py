@@ -9,6 +9,11 @@ from forms import SearchForm
 from config import MAX_SEARCH_RESULTS
 from .emails import follower_notification
 
+@lm.user_loader
+def load_user(id):
+    return User.query.get(int(id))
+
+
 @app.before_request
 def before_request():
     g.user = current_user
@@ -33,7 +38,6 @@ def internal_error(error):
 @app.route('/index/<int:page>', methods=['GET', 'POST'])
 @login_required
 def index(page=1):
-    user = g.user
     form = PostForm()
     if form.validate_on_submit():
         post = Post(body=form.post.data, timestamp=datetime.utcnow(), author=g.user)
@@ -41,7 +45,7 @@ def index(page=1):
         db.session.commit()
         flash('Your post is now live!')
         return  redirect(url_for('index'))
-    posts = g.user.followed_posts().paginate(page, POSTS_PER_PAGE, False).items
+    posts = g.user.followed_posts().paginate(page, POSTS_PER_PAGE, False)
     return render_template('index.html',tile='Home', form=form, posts=posts)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -54,10 +58,6 @@ def login():
         session['remember_me'] = form.remember_me.data
         return oid.try_login(form.openid.data, ask_for=['nickname', 'email'])
     return render_template('login.html', title='Sign In', form=form, providers=app.config['OPENID_PROVIDERS'])
-
-@lm.user_loader
-def load_user(id):
-    return User.query.get(int(id))
 
 @oid.after_login
 def after_login(resp):
@@ -83,13 +83,6 @@ def after_login(resp):
     login_user(user, remember = remember_me)
     return redirect(request.args.get('next') or url_for('index'))
 
-@app.before_request
-def before_request():
-    g.user = current_user
-    if g.user.is_authenticated():
-        g.user.last_seen = datetime.utcnow()
-        db.session.add(g.user)
-        db.session.commit()
 
 @app.route('/logout')
 def logout():
@@ -111,7 +104,6 @@ def user(nickname, page=1):
 
 @app.route('/edit', methods=['GET', 'POST'])
 @login_required
-@login_required
 def edit():
     form = EditForm(g.user.nickname)
     if form.validate_on_submit():
@@ -121,7 +113,7 @@ def edit():
         db.session.commit()
         flash('Your changes have been saved.')
         return redirect(url_for('edit'))
-    else:
+    elif request.method != "POST":
         form.nickname.data = g.user.nickname
         form.about_me.data = g.user.about_me
     return render_template('edit.html', form=form)
@@ -147,6 +139,7 @@ def follow(nickname):
     return redirect(url_for('user', nickname=nickname))
 
 @app.route('/unfollow/<nickname>')
+@login_required
 def unfollow(nickname):
     user = User.query.filter_by(nickname=nickname).first()
     if user is None:
